@@ -22,7 +22,7 @@ let UserController = {
   },
 
   Signup: async (req, res) => {
-    const { username, email, password } = req.body
+    const { username, email, password,role } = req.body
     if (!username || !email || !password) {
       return res.json({
         message: "required fields are missing",
@@ -39,7 +39,7 @@ let UserController = {
     }
 
     const hashpassword = await bcrypt.hash(password, 10)
-    let user = new UserSchema({ username, email, password: hashpassword })
+    let user = new UserSchema({ username, email, password: hashpassword,role })
     await user.save()
     res.json({
       message: "SignUp Successfully",
