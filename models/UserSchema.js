@@ -18,7 +18,7 @@ const UserSchema = new Schema({
     role:{
         type:String,
         default:"user",
-        enum:["user","admin"]
+        enum:["organizer","exhibitor","attendee"]
     }
 })
 module.exports=mongoose.model("user",UserSchema)
