@@ -6,7 +6,7 @@ require('dotenv').config()
 
 
 const UserRouter = require("./routes/UserRoutes");
-const ProductRoutes = require("./routes/ProductRoutes");
+const EventRouter = require("./routes/EventRoutes.js");
 
 const app = express();
 ConnectDB();
@@ -22,7 +22,7 @@ app.use(express.json());
 
 // Routes
 app.use("/users", UserRouter);
-app.use("/products", ProductRoutes);
+app.use("/api/expos", EventRouter);
 
 // Home test
 app.get('/', (req, res) => {
