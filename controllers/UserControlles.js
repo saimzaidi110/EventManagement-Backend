@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const UserSchema = require("../models/UserSchema");
 const jwt = require('jsonwebtoken')
 
-const SECRET =process.env.JWT_SECRET || 'your_super_secret_key'
+const SECRET =process.env.JWT_SECRET || ' '
 let UserController = {
   getalluser: async (req, res) => {
     try {
