@@ -31,7 +31,7 @@ const expoEventSchema = new mongoose.Schema({
   },
   booths: {
     type: Number,
-    default:10,
+    default: 10,
   },
   createdAt: {
     type: Date,
@@ -40,7 +40,67 @@ const expoEventSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  attendeeList: [
+    {
+      username: {
+        type: String,
+        required: true
+      },
+      email: {
+        type: String,
+        required: true
+      }
+    }
+  ],
+  exhibitorList: [
+    {
+      username: {
+        type: String,
+        required: true
+      },
+      email: {
+        type: String,
+        required: true
+      },
+      companyName: {
+        type: String,
+        required: true
+      },
+      productsServices: {
+        type: String,
+        required: true
+      },
+      documents: {
+        type: String,
+        required: true
+      },
+    }
+  ],
+  exhibitorRequests: [
+    {
+      username: {
+        type: String,
+        required: true
+      },
+      email: {
+        type: String,
+        required: true
+      },
+      companyName: {
+        type: String,
+        required: true
+      },
+      productsServices: {
+        type: String,
+        required: true
+      },
+      documents: {
+        type: String,
+        required: true
+      },
+    }
+  ]
 });
 
 // Middleware to update timestamp
