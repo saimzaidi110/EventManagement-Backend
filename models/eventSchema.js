@@ -75,6 +75,10 @@ const expoEventSchema = new mongoose.Schema({
         type: String,
         required: true
       },
+       allocatedBooth: {
+      type: Number,
+      // required: true // ensure we always assign a booth number
+    }
     }
   ],
   exhibitorRequests: [

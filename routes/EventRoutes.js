@@ -21,10 +21,13 @@ router.delete("/:id", expoController.deleteExpoEvent);
 router.post('/exporegisterrequest', expoController.exhibitorRequest)
 
 
-// http://localhost:3000/api/expo/approve-exhibitor
+// http://localhost:3000/api/expos/approve-exhibitor
 router.post('/approve-exhibitor',expoController.approveExhibitorRequest)
 
-// http://localhost:3000/api/expo/reject-exhibitor
+// http://localhost:3000/api/expos/reject-exhibitor
 router.post('/reject-exhibitor',expoController.rejectExhibitorRequest)
+
+// // http://localhost:3000/api/expos/attendeeregister
+router.post('/attendeeregister', expoController.attendeeRegister)
 
 module.exports = router;

@@ -85,59 +85,125 @@ const expoController = {
             res.status(500).json({ error: error.message });
         }
     },
-     approveExhibitorRequest: async (req, res) => {
-    const { expoId, exhibitorRequestId } = req.body;
-  
-    try {
-      // Find the expo by ID
-      const expo = await eventSchema.findById(expoId);
-  
-      if (!expo) {
-        return res.status(404).json({ message: 'Expo not found' });
-      }
-  
-      // Find the exhibitor request by requestId
-      const exhibitorRequest = expo.exhibitorRequests.id(exhibitorRequestId);
-  
-      if (!exhibitorRequest) {
-        return res.status(404).json({ message: 'Exhibitor request not found' });
-      }
-  
-      // Add the exhibitor request to exhibitorList
-      expo.exhibitorList.push(exhibitorRequest);
-  
-      // Remove the exhibitor request from exhibitorRequests
-      expo.exhibitorRequests.pull(exhibitorRequestId);
-  
-      // Save the updated expo document
-      await expo.save();
-  
-      return res.status(200).json({ message: 'Exhibitor approved successfully', expo });
-    } catch (error) {
-      console.error('Error approving exhibitor:', error);
-      return res.status(500).json({ message: 'Server error' });
-    }
-  },
-  rejectExhibitorRequest: async (req, res) => {
-    const { expoId, exhibitorRequestId } = req.body;
+    approveExhibitorRequest: async (req, res) => {
+        const { expoId, exhibitorRequestId } = req.body;
 
-    try {
-        const expo = await eventSchema.findById(expoId);
-        if (!expo) {
-            return res.status(404).json({ status: false, message: 'Expo not found' });
+        try {
+            // Find the expo by ID
+            const expo = await eventSchema.findById(expoId);
+
+            if (!expo) {
+                return res.status(404).json({ message: 'Expo not found' });
+            }
+
+            // Find the exhibitor request by requestId
+            const exhibitorRequest = expo.exhibitorRequests.id(exhibitorRequestId);
+
+            if (!exhibitorRequest) {
+                return res.status(404).json({ message: 'Exhibitor request not found' });
+            }
+
+            // Check if booths are already full
+            const totalBooths = expo.booths; // max booths from schema
+            const allocatedBoothsCount = expo.exhibitorList.length;
+
+            if (allocatedBoothsCount >= totalBooths) {
+                return res.status(400).json({ message: 'All booths are already allocated. Cannot approve more exhibitors.' });
+            }
+
+            // Assign next booth number
+            const allocatedBoothNumber = allocatedBoothsCount + 1;
+
+            // Push to exhibitorList with booth number
+            expo.exhibitorList.push({
+                username: exhibitorRequest.username,
+                email: exhibitorRequest.email,
+                companyName: exhibitorRequest.companyName,
+                productsServices: exhibitorRequest.productsServices,
+                documents: exhibitorRequest.documents,
+                allocatedBooth: allocatedBoothNumber
+            });
+
+            // Remove the exhibitor request from exhibitorRequests
+            expo.exhibitorRequests.pull(exhibitorRequestId);
+
+            // Save updated expo document
+            await expo.save();
+
+            return res.status(200).json({
+                message: `Exhibitor approved and allocated booth #${allocatedBoothNumber}`,
+                expo
+            });
+        } catch (error) {
+            console.error('Error approving exhibitor:', error);
+            return res.status(500).json({ message: 'Server error', error: error.message });
+        }
+    },
+
+    rejectExhibitorRequest: async (req, res) => {
+        const { expoId, exhibitorRequestId } = req.body;
+
+        try {
+            const expo = await eventSchema.findById(expoId);
+            if (!expo) {
+                return res.status(404).json({ status: false, message: 'Expo not found' });
+            }
+
+            // Filter out the rejected exhibitor request
+            expo.exhibitorRequests = expo.exhibitorRequests.filter(
+                (request) => request._id.toString() !== exhibitorRequestId
+            );
+
+            await expo.save();
+            res.status(200).json({ status: true, message: 'Exhibitor request rejected successfully', expo });
+        } catch (error) {
+            res.status(500).json({ status: false, message: 'Error rejecting exhibitor request', error });
+        }
+    },
+
+
+    attendeeRegister: async (req, res) => {
+        const { expoId, username, email } = req.body;
+
+        // Validate the input
+        if (!expoId || !username || !email) {
+            return res.status(400).json({ message: 'expoId, username, and email are required' });
         }
 
-        // Filter out the rejected exhibitor request
-        expo.exhibitorRequests = expo.exhibitorRequests.filter(
-            (request) => request._id.toString() !== exhibitorRequestId
-        );
+        try {
+            // Find the Expo by ID
+            const expo = await eventSchema.findById(expoId);
 
-        await expo.save();
-        res.status(200).json({ status: true, message: 'Exhibitor request rejected successfully', expo });
-    } catch (error) {
-        res.status(500).json({ status: false, message: 'Error rejecting exhibitor request', error });
-    }
-}
+            if (!expo) {
+                return res.status(404).json({ message: 'Expo not found' });
+            }
+
+            // Check if the attendee is already registered
+            const isAlreadyRegistered = expo.attendeeList.some(
+                (attendee) => attendee.email === email
+            );
+
+            if (isAlreadyRegistered) {
+                return res.json({ message: 'Attendee already registered', status: false });
+            }
+
+            // Add the new attendee to the attendee list
+            expo.attendeeList.push({ username, email });
+
+            // Save the updated Expo document
+            await expo.save();
+
+            return res.status(200).json({
+                message: 'Successfully registered for the expo',
+                attendeeCount: expo.attendeeList.length,
+                attendeeList: expo.attendeeList,
+                status: true
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Server error', error: error.message });
+        }
+    },
 };
 
 module.exports = expoController;
