@@ -87,7 +87,7 @@ const expoController = {
     },
     approveExhibitorRequest: async (req, res) => {
         const { expoId, exhibitorRequestId } = req.body;
-
+        console.log(req.body)
         try {
             // Find the expo by ID
             const expo = await eventSchema.findById(expoId);
@@ -98,7 +98,7 @@ const expoController = {
 
             // Find the exhibitor request by requestId
             const exhibitorRequest = expo.exhibitorRequests.id(exhibitorRequestId);
-
+            console.log(exhibitorRequest)
             if (!exhibitorRequest) {
                 return res.status(404).json({ message: 'Exhibitor request not found' });
             }
@@ -108,6 +108,7 @@ const expoController = {
             const allocatedBoothsCount = expo.exhibitorList.length;
 
             if (allocatedBoothsCount >= totalBooths) {
+                console.log({ message: 'All booths are already allocated. Cannot approve more exhibitors.' })
                 return res.status(400).json({ message: 'All booths are already allocated. Cannot approve more exhibitors.' });
             }
 
@@ -202,6 +203,35 @@ const expoController = {
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Server error', error: error.message });
+        }
+    },
+    // Update expo schedule
+    scheduleExpo: async (req, res) => {
+        const { id } = req.params; // Get the expo ID from the URL
+        const { title, date, time, speaker, location } = req.body; // Extract fields from the request body
+        console.log(req.body)
+
+        try {
+            // Validate the incoming data
+            if (!title || !date || !time || !speaker || !location) {
+                return res.status(400).json({ message: 'All fields are required' });
+            }
+
+            // Find the expo by ID and update it
+            const updatedExpo = await eventSchema.findByIdAndUpdate(
+                id,
+                { title, date, time, speaker, location },
+                { new: true, runValidators: true } // Return the updated document and run schema validators
+            );
+
+            if (!updatedExpo) {
+                return res.status(404).json({ message: 'Expo not found' });
+            }
+
+            res.status(200).json({ message: 'Expo updated successfully', data: updatedExpo });
+        } catch (error) {
+            console.error('Error updating expo:', error);
+            res.status(500).json({ message: 'Internal server error' });
         }
     },
 };

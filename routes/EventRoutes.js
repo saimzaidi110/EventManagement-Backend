@@ -30,4 +30,7 @@ router.post('/reject-exhibitor',expoController.rejectExhibitorRequest)
 // // http://localhost:3000/api/expos/attendeeregister
 router.post('/attendeeregister', expoController.attendeeRegister)
 
+// // http://localhost:3000/api/expo/schedule/id
+router.post('/schedule/:id', expoController.scheduleExpo)
+
 module.exports = router;

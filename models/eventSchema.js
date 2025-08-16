@@ -37,6 +37,16 @@ const expoEventSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+    time: {
+    type: String,
+    required: true,
+    default: 'TBD'
+  },
+  speaker: {
+    type: String,
+    required: true,
+    default: 'TBD'
+  },
   updatedAt: {
     type: Date,
     default: Date.now
